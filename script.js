@@ -2,7 +2,12 @@ const canvas = document.getElementById('canvas1');
 const ctx = canvas.getContext('2d');
 const CANVAS_WIDTH = canvas.width = window.innerWidth;
 const CANVAS_HEIGHT = canvas.height = window.innerHeight;
-
+const imageSources = [
+  'img/hercule_seghers1.jpg',
+  'img/hercule_seghers2.jpg',
+  'img/hercule_seghers3.jpg',
+  'img/hercule_seghers4.jpg'
+];
 
 class Player{
   constructor(){
@@ -34,15 +39,46 @@ class Player{
   }
 };
 
-let player = new Player;
-player.draw();
+class bgImage{
+  constructor(imageUrl, x_position){
+    this.image = new Image();
+    this.image.src = imageUrl;
+    this.x = x_position;
+  }
+  draw(){
+    ctx.drawImage(this.image, this.x, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  }
+}
 
-let background = new Image();
-background.src = 'img/hercule_seghers1.jpg';
+// Helper Functions
+function addNextImage(x_postition){
+  let imageUrl = imageSources[Math.floor(Math.random() * imageSources.length)];
+  let nextImage = new bgImage(imageUrl, x_postition);
+  currentBgArray.push(nextImage);
+}
+
+// Manage Background Movement
+let currentBgArray = [];
+addNextImage(0);
+addNextImage(CANVAS_WIDTH);
+function manageBackground(){
+  for (img of currentBgArray){
+    img.draw();
+    img.x --;
+    if (img.x + CANVAS_WIDTH < 0){
+      currentBgArray = currentBgArray.slice(1);
+      addNextImage(CANVAS_WIDTH);
+    }
+  }
+}
+
+let player = new Player;
+//let background = new bgImage('img/hercule_seghers1.jpg');
 
 function animate(){
   ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-  ctx.drawImage(background, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  //currentBgArray[0].draw();
+  manageBackground();
   player.draw();
   player.update();
   requestAnimationFrame(animate);
