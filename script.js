@@ -109,12 +109,8 @@ function manageBackground(){
   }
 }
 
-// Manage Building Movement
-let buildingArray = [];
-
-
 let player = new Player;
-let middleGround = new Obstacles(0, 2);
+let middleGround = new Obstacles(0, 1.3);
 
 window.addEventListener("keydown", function(e){
   if (e.key == " "){
@@ -129,11 +125,14 @@ window.addEventListener("keyup", function(ev){
 
 function animate(){
   ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-  manageBackground();
-  player.update();
-  player.draw();
+  //manageBackground();
   middleGround.update();
   middleGround.draw();
+  if (middleGround.x + middleGround.width < 30){
+    middleGround.x = CANVAS_WIDTH + 10;
+  }
+  player.update();
+  player.draw();
   requestAnimationFrame(animate);
 }
 animate();
