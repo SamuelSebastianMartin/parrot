@@ -53,7 +53,7 @@ class Player{
   }
 };
 
-class bgImage{
+class BgImage{
   constructor(imageUrl, x_position){
     this.image = new Image();
     this.image.src = imageUrl;
@@ -64,10 +64,33 @@ class bgImage{
   }
 }
 
+class Obstacles{
+  constructor(frameNo, speed){
+    this.spritesheet = new Image
+    this.spritesheet.src = 'img/buildings.png';
+    this.frame = 0; // which castle will be displayed
+    this.spriteWidth = 247;
+    this.spriteHeight = 134;
+    this.width = this.spriteWidth *2;
+    this.height = this.spriteHeight * 2;
+    this.x = CANVAS_WIDTH;
+    this.y = CANVAS_HEIGHT - this.height;
+    this.speed = speed;
+  }
+  update(){
+    this.x -= this.speed;
+  }
+  draw(){
+    ctx.drawImage(this.spritesheet,
+      this.frame * this.spriteWidth, 0, this.spriteWidth, this.spriteHeight,
+      this.x, this.y, this.width, this.height)
+  }
+}
+
 // Helper Functions
 function addNextImage(x_postition){
   let imageUrl = imageSources[Math.floor(Math.random() * imageSources.length)];
-  let nextImage = new bgImage(imageUrl, x_postition);
+  let nextImage = new BgImage(imageUrl, x_postition);
   currentBgArray.push(nextImage);
 }
 
@@ -86,7 +109,12 @@ function manageBackground(){
   }
 }
 
+// Manage Building Movement
+let buildingArray = [];
+
+
 let player = new Player;
+let middleGround = new Obstacles(0, 2);
 
 window.addEventListener("keydown", function(e){
   if (e.key == " "){
@@ -104,6 +132,8 @@ function animate(){
   manageBackground();
   player.update();
   player.draw();
+  middleGround.update();
+  middleGround.draw();
   requestAnimationFrame(animate);
 }
 animate();
