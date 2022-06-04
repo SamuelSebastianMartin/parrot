@@ -14,26 +14,40 @@ class Player{
     this.image = new Image();
     this.image.src = 'img/parot_spritesheet_8frame(w103h92).png';
     this.x = 100;
-    this.y = CANVAS_HEIGHT * 0.5;
+    this.y = CANVAS_HEIGHT * 0.1;
     this.spriteWidth = 103;
     this.spriteHeight = 92;
     this.width = this.spriteWidth * 2.5;
     this.height = this.spriteHeight * 2.5;
     this.frame = 0; // for cycling through sprite sheet
     this.flapSpeed = 2; // low is faster
-    this.flapIndex = 0;
+    this.flapIndex = 0; // frame number on spritesheet
+    this.glideToggle = false; // don't glide at initial state
+    this.climbSpeed = 0.2;
+    this.dropSpeed = 0.8;
   }
-
   draw(){
     ctx.drawImage(this.image, this.frame * this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, this.x, this.y, this.width, this.height);
   }
   update(){
-    this.flapIndex ++;
-    if (this.flapIndex > this.flapSpeed){
-      this.frame ++
-      this.flapIndex = 0;
-      if (this.frame > 7) {
-        this.frame = 0;
+    if (this.glideToggle){ // in glide state
+      this.frame = 1;
+      this.y += this.dropSpeed;
+      if (this.y + this.height >= CANVAS_HEIGHT){ // stop gliding at bottom of screen
+        this.glideToggle = false;
+      }
+    } else { // in flap state
+      this.y -= this.climbSpeed;
+      this.flapIndex ++;
+      if (this.y <= 0){ // stop exiting at top of screen.
+        this.y = 0;
+      }
+      if (this.flapIndex > this.flapSpeed){ // controll flapping rate
+        this.frame ++
+        this.flapIndex = 0;
+        if (this.frame > 7) {
+          this.frame = 0;
+        }
       }
     }
   }
@@ -64,23 +78,32 @@ addNextImage(CANVAS_WIDTH);
 function manageBackground(){
   for (img of currentBgArray){
     img.draw();
-    img.x --;
+    img.x --; // scroll image leftward
     if (img.x + CANVAS_WIDTH < 0){
-      currentBgArray = currentBgArray.slice(1);
+      currentBgArray = currentBgArray.slice(1); // remove offscreen images from array
       addNextImage(CANVAS_WIDTH);
     }
   }
 }
 
 let player = new Player;
-//let background = new bgImage('img/hercule_seghers1.jpg');
+
+window.addEventListener("keydown", function(e){
+  if (e.key == " "){
+    player.glideToggle = true;
+  }
+});
+window.addEventListener("keyup", function(ev){
+  if (ev.key == " "){
+    player.glideToggle = false;
+  }
+});
 
 function animate(){
   ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-  //currentBgArray[0].draw();
   manageBackground();
-  player.draw();
   player.update();
+  player.draw();
   requestAnimationFrame(animate);
 }
 animate();
